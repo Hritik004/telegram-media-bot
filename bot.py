@@ -225,6 +225,10 @@ async def process_and_download(message, context: ContextTypes.DEFAULT_TYPE) -> i
         'quiet': True,
         'ffmpeg_location': current_dir,
         'socket_timeout': 30,
+        
+        # Add these two bypass options down here 👇
+        'cookiefile': 'cookies.txt',
+        'extractor_args': {'youtube': {'player_client': ['web_safari']}},
     }
 
     # Temporary unique keys used to prevent download overlap crashes
