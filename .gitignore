@@ -1,6 +1,11 @@
 venv/
 __pycache__/
 *.pyc
+
+# Block all Windows executables
+*.exe
+
+# Downloaded temporary media files
 temp_audio_*
 temp_video_*
 audio_*
