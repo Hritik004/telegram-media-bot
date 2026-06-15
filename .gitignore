@@ -13,3 +13,4 @@ video_*
 *.mp3
 *.mp4
 .env
+cookies.txt
