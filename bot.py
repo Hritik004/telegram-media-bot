@@ -21,6 +21,17 @@ logger = logging.getLogger(__name__)
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
+COOKIES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt")
+YTDLP_AUTH_OPTS = {
+    'cookiefile': COOKIES_FILE,
+    'extractor_args': {
+        'youtube': {
+            'player_client': ['web'],
+            'skip_unavailable_fragments': [True],
+        }
+    },
+}
+
 # Conversation States
 GET_LINK, CHOOSE_TYPE, CHOOSE_QUALITY, CHOOSE_NAMING, GET_CUSTOM_NAME = range(5)
 
@@ -119,7 +130,7 @@ async def run_size_and_naming_check(message, context: ContextTypes.DEFAULT_TYPE,
             }
             format_str = quality_map.get(quality_format, "bestvideo[height<=1080]+bestaudio/best")
 
-        meta_opts = {'quiet': True, 'format': format_str}
+        meta_opts = {'quiet': True, 'format': format_str, **YTDLP_AUTH_OPTS}
         with yt_dlp.YoutubeDL(meta_opts) as ydl:
             return ydl.extract_info(url, download=False)
 
@@ -225,11 +236,9 @@ async def process_and_download(message, context: ContextTypes.DEFAULT_TYPE) -> i
         'quiet': True,
         'ffmpeg_location': current_dir,
         'socket_timeout': 30,
-        
-        # Add these two bypass options down here 👇
-        'cookiefile': 'cookies.txt',
-        'extractor_args': {'youtube': {'player_client': ['web_safari']}},
+        **YTDLP_AUTH_OPTS,
     }
+
 
     # Temporary unique keys used to prevent download overlap crashes
     if download_type == "type_audio":
