@@ -222,14 +222,16 @@ async def process_and_download(message, context: ContextTypes.DEFAULT_TYPE) -> i
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
     ydl_opts = {
-        'quiet': True,
-        'ffmpeg_location': current_dir,
-        'socket_timeout': 30,
-        
-        # Add these two bypass options down here 👇
-        'cookiefile': 'cookies.txt',
-        'extractor_args': {'youtube': {'player_client': ['web_safari']}},
-    }
+    'quiet': True,
+    'ffmpeg_location': os.path.dirname(os.path.abspath(__file__)),
+    'socket_timeout': 30,
+    'extractor_args': {
+        'youtube': {
+            'player_client': ['mweb', 'tv'],
+            'player_skip': ['webpage', 'configs'],
+        }
+    },
+}
 
     # Temporary unique keys used to prevent download overlap crashes
     if download_type == "type_audio":
