@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY . .
 
-CMD ["python", "bot.py"]
+CMD ["sh", "-c", "python extract_cookies.py && python bot.py"]

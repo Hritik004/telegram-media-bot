@@ -13,6 +13,21 @@ from telegram.ext import (
 )
 import yt_dlp
 
+# Absolute path to cookies.txt — always co-located with this script
+COOKIES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cookies.txt")
+
+# Shared yt-dlp options that bypass YouTube bot-detection
+YTDLP_AUTH_OPTS: dict = {
+    'cookiefile': COOKIES_FILE,
+    'extractor_args': {
+        'youtube': {
+            'player_client': ['web'],
+            'skip_unavailable_fragments': [True],
+        }
+    },
+}
+
+
 # Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -119,9 +134,10 @@ async def run_size_and_naming_check(message, context: ContextTypes.DEFAULT_TYPE,
             }
             format_str = quality_map.get(quality_format, "bestvideo[height<=1080]+bestaudio/best")
 
-        meta_opts = {'quiet': True, 'format': format_str}
+        meta_opts = {'quiet': True, 'format': format_str, **YTDLP_AUTH_OPTS}
         with yt_dlp.YoutubeDL(meta_opts) as ydl:
             return ydl.extract_info(url, download=False)
+
 
     try:
         info = await asyncio.to_thread(check_metadata)
@@ -225,11 +241,9 @@ async def process_and_download(message, context: ContextTypes.DEFAULT_TYPE) -> i
         'quiet': True,
         'ffmpeg_location': current_dir,
         'socket_timeout': 30,
-        
-        # Add these two bypass options down here 👇
-        'cookiefile': 'cookies.txt',
-        'extractor_args': {'youtube': {'player_client': ['web_safari']}},
+        **YTDLP_AUTH_OPTS,
     }
+
 
     # Temporary unique keys used to prevent download overlap crashes
     if download_type == "type_audio":
